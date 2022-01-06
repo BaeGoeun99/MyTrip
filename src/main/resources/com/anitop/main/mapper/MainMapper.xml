@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anitop.main.mapper.MainMapper">
+<!-- 개발자 : 배고은 -->
+
+	<!-- 이미지 게시판 리스트 쿼리 : id="메서드명" -->
+	<select id="list" resultType="com.anitop.main.vo.MainVO">
+		select rnum, no, title, id, name, writeDate, fileName, vod
+			from(
+				select rownum rnum, no, title, id, name, writeDate, fileName, vod
+				from(
+					select a.no, a.title, a.id, m.name, a.writeDate, a.fileName, a.vod
+					from main a, member m
+					where (a.id = m.id) 
+					<include refid="search1" />
+					order by no desc
+			)
+		) where rnum between #{startRow} and #{endRow}
+	</select>
+
+	<!-- 이미지 게시판 전체 데이터 쿼리 -->
+	<select id="getTotalRow" resultType="java.lang.Long">
+		select count(*) from main
+		<include refid="search" />
+	</select>
+	
+	<!-- 검색 조건 쿼리 -->
+	<sql id="search1">
+		<!-- mybatis에서는 데이터 자동변환을 한다. 한글자는 char -->
+		<if test="word != null and word != ''.toString()">
+			<!-- 검색하는 데이터가 있는 경우 where가 나온다. -->
+			and (2 = 1
+				<if test="key == 't'.toString()">
+					OR title like '%' || #{word} || '%'
+				</if>
+				<if test="key == 'c'.toString()">
+					OR content like '%' || #{word} || '%'
+				</if>
+				<if test="key == 'a'.toString()">
+					OR title like '%' || #{word} || '%'
+					OR content like '%' || #{word} || '%'
+				</if>
+			)
+		</if>
+	</sql>
+	<!-- 검색 조건 쿼리 -->
+	<sql id="search">
+		<!-- mybatis에서는 데이터 자동변환을 한다. 글자가 한자이면 char -->
+		<if test="word != null and word != ''.toString()">
+			<!-- 검색하는 데이터가 있는 경우 where가 나온다. -->
+				where 2 = 1
+			<if test="key == 't'.toString()">
+				OR title like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'c'.toString()">
+				OR content like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'a'.toString()">
+				OR title like '%' || #{word} || '%'
+				OR content like '%' || #{word} || '%'
+			</if>
+		</if>
+	</sql>
+	
+	<!-- 이미지 게시글 상세보기 쿼리 -->
+	<select id="view" resultType="com.anitop.main.vo.MainVO">
+		select a.no, a.title, a.content, a.id, m.name, a.writeDate, a.fileName, a.vod, a.launchDate, a.company, a.author
+		from main a, member m
+		where (no = #{no}) and (a.id = m.id)
+	</select>
+
+	<!-- 이미지 게시글 등록 쿼리 -->
+	<insert id="write">
+		insert into main(no, title, content, id, fileName, vod, launchDate, company, author)
+		values(main_seq.nextval, #{title}, #{content}, #{id}, #{fileName}, #{vod}, #{launchDate}, #{company}, #{author})
+	</insert>
+
+	<!-- 이미지 게시글 수정 쿼리 -->
+	<update id="update">
+		update main set title = #{title}, content = #{content}, vod = #{vod}, launchDate = #{launchDate}, company = #{company}, author = #{author}
+		where no = #{no}
+	</update>
+
+	<!-- 이미지 단독 수정 쿼리 -->
+	<update id="updateImage">
+		update main set fileName = #{fileName}
+		where no = #{no}
+	</update>
+
+	<!-- 이미지 게시글 삭제 쿼리 -->
+	<delete id="delete">
+		delete from main where no = #{no}
+	</delete>
+
+
+</mapper>

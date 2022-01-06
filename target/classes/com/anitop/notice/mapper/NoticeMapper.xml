@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.anitop.notice.mapper.NoticeMapper">
+<!-- 개발자 : 배고은 -->
+
+	<!-- 공지사항 게시판 리스트 쿼리 : id="메서드명" -->
+	<select id="list" resultType="com.anitop.notice.vo.NoticeVO">
+		select rnum, no, title, id, writeDate
+			from(
+				select rownum rnum, no, title, id, writeDate
+				from(
+					select n.no, n.title, n.id, n.writeDate
+					from notice n, member m
+					where (n.id = m.id) 
+					order by no desc
+			)
+		) where rnum between #{startRow} and #{endRow}
+	</select>
+
+	<!-- 공지사항 게시판 전체 데이터 쿼리 -->
+	<select id="getTotalRow" resultType="java.lang.Long">
+		select count(*) from notice
+	</select>
+	
+	<!-- 공지사항 게시글 상세보기 쿼리 -->
+	<select id="view" resultType="com.anitop.notice.vo.NoticeVO">
+		select n.no, n.title, n.content, n.id, n.writeDate
+		from notice n, member m
+		where (no = #{no}) and (n.id = m.id)
+	</select>
+
+	<!-- 공지사항 게시글 등록 쿼리 -->
+	<insert id="write">
+		insert into notice(no, title, content, id)
+		values(notice_seq.nextval, #{title}, #{content}, #{id})
+	</insert>
+
+	<!-- 공지사항 게시글 수정 쿼리 -->
+	<update id="update">
+		update notice set title = #{title}, content = #{content}
+		where no = #{no}
+	</update>
+
+	<!-- 공지사항 게시글 삭제 쿼리 -->
+	<delete id="delete">
+		delete from notice where no = #{no}
+	</delete>
+
+
+</mapper>
