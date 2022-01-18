@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd" id="WebApp_ID" version="4.0">
+  <display-name>myTrip</display-name>
+  <welcome-file-list>
+    <welcome-file>main.do</welcome-file>
+  </welcome-file-list>
+  
+  <!-- Servlet 등록 : servlet과 servlet-mappring tag 사용 -->
+  <!-- 드라이버 확인 / 객체 생성 저장 / Inject : 서버 로딩 - 필요한 객체 초기화 -->
+  <servlet>
+  	<servlet-name>init</servlet-name>
+  	<servlet-class>com.mytrip.main.controller.Init</servlet-class>
+  	<load-on-startup>1</load-on-startup>
+  </servlet>
+  
+  <!-- 서버 운영에 처리해주는 설정 -->
+  <servlet>
+  	<servlet-name>dispacherServlet</servlet-name>
+  	<!-- *.do를 받아가서 처리해 주는 서블릿 프로그램 -->
+  	<servlet-class>com.mytrip.main.controller.DispacherServlet</servlet-class>
+  	<load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+  	<servlet-name>dispacherServlet</servlet-name>
+  	<!-- url-pattern : 확장자 기반 - *.do, 위치기반 - /board/* -> 혼합해서 사용 못함. -->
+  	<url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+  
+  <!-- Filter  등록 : 등록된 순서대로 실행이 된다. -->
+  <filter>
+  	<description>한글 처리 필터</description>
+  	<filter-name>encoding</filter-name>
+  	<filter-class>com.mytrip.util.filter.EncodingFilter</filter-class>
+  </filter>
+  <filter-mapping>
+  	<filter-name>encoding</filter-name>
+  	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  
+  
+  <filter>
+  	<description>전체 레이아웃 : sitemesh</description>
+  	<filter-name>sitemesh</filter-name>
+  	<filter-class>com.opensymphony.sitemesh.webapp.SiteMeshFilter</filter-class>
+  </filter>
+  <filter-mapping>
+  	<filter-name>sitemesh</filter-name>
+  	<url-pattern>*.do</url-pattern>
+  </filter-mapping>
+  
+  
+  <filter>
+  	<description>권한 처리 필터</description>
+  	<filter-name>authority</filter-name>
+  	<filter-class>com.mytrip.util.filter.AuthorityFilter</filter-class>
+  </filter>
+  <filter-mapping>
+  	<filter-name>authority</filter-name>
+  	<url-pattern>*.do</url-pattern>
+  </filter-mapping>
+  
+  
+  <error-page>
+  	<error-code>404</error-code>
+<!--   	<location>/error/error_404.do</location> -->
+  	<location>/WEB-INF/views/error/error_404.jsp</location>
+  </error-page>
+  
+  <error-page>
+  	<error-code>500</error-code>
+  	<location>/WEB-INF/views/error/error_500.jsp</location>
+  </error-page>
+  
+<!--   <error-page> -->
+<!--   	<exception-type>javax.servlet.ServletException</exception-type> -->
+<!--   	<location>/WEB-INF/views/error/error_500.jsp</location> -->
+<!--   </error-page> -->
+  
+  
+</web-app>
